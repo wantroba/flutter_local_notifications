@@ -1,3 +1,34 @@
+## [vNext]
+
+* Updated readme with information for developers that plan to move to use the UIScene lifecycle
+
+## [19.5.0]
+
+* [iOS][macOS] added `requestProvidesAppNotificationSettings` option to `DarwinInitializationSettings` class, and `isProvidesAppNotificationSettingsEnabled` to `NotificationsEnabledOptions` class. This allows applications to show a "Configure Notifications in <app name>" option when showing the context menu for an individual notification. This can be used for scenarios where an application can respond to the user selecting this option to show a custom page for controlling notification settings. Please note this whilst the API changes are applicable for iOS and macOS, the actual functionality only appears to be supported by Apple when it comes to iOS devices. See example app to see how this new functionality can be implemented. Thanks to the PR from [Luke Memet](https://github.com/lukemmtt)
+
+## [19.4.2]
+
+* [Windows] fixed issue where non-ASCII characters for the notification [application name](https://pub.dev/documentation/flutter_local_notifications/latest/flutter_local_notifications/WindowsInitializationSettings/appName.html) weren't being displayed properly. Thanks to the PR from [yoyoIU](https://github.com/yoyo930021)
+
+## [19.4.1]
+
+* [Android] fixed issue [#2675](https://github.com/MaikuB/flutter_local_notifications/issues/2675) where addition of `invisible` flag to notification actions could cause scheduled notifications with actions created prior to 19.4.0 to fail to show
+* Updated the Android release build configuration section to point to the latest [location](https://developer.android.com/topic/performance/app-optimization/customize-which-resources-to-keep) of the official Android docs on how to configure which resources (e.g. notification icons) are kept so they are not discarded by the Android compiler. It has also been reworded to make it clearer that this applies to all Android resources 
+
+## [19.4.0]
+
+* [Android] added ability to read `dataMimeType` and `dataUri` when calling `getActiveNotifications()` to read details of an active Android notification using the messaging style. Thanks to the PR from [Matt Bajorek](https://github.com/mattbajorek)
+* [Android] added support for Android semantic actions. Thanks to the PR from [Jared Szechy](https://github.com/szechyjs)
+
+## [19.3.1]
+
+* [Windows] fixed issue [#2648](https://github.com/MaikuB/flutter_local_notifications/issues/2648) where non-ASCII characters in the notification payload were not being handled properly. Thanks to the PR from [yoyoIU](https://github.com/yoyo930021)
+* [Windows] fixed issue [#2651](https://github.com/MaikuB/flutter_local_notifications/issues/2651) where unresolved symbols occurred with changes in introduced in newer Windows SDKs. Thanks to the PR from [Sebastien](https://github.com/Sebastien-VZN)
+
+## [19.3.0]
+
+* [Android][iOS][macOS] added `cancelAllPendingNotifications()` method for cancelling all pending notifications that have been scheduled. Thanks to the PR from [Kwon Tae Hyung](https://github.com/TaeBbong)
+
 ## [19.2.1]
 
 * [macOS] removed redundant code that was only applicable on macOS versions lower than 10.14. This should be a non-functional change since 18.0.0 bumped the minimum Flutter SDK requirements that in turn required macOS 10.14 at a minimum. Thanks to the PR from [Blin Qipa](https://github.com/bqubique)
