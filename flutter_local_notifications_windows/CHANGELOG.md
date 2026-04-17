@@ -1,3 +1,16 @@
+## [3.1.0-dev.1]
+
+* Updated `periodicallyShow()` to accept `payload` and `notificationDetails` as optional parameters
+
+## [3.0.0]
+
+* **Breaking change** bumped minimum Flutter SDK requirement to 3.38.1 and Dart SDK requirement to 3.10.0
+* Bumped `timezone` dependency
+
+## [2.0.1]
+
+* Non-functional change: addressed the [`use_null_aware_elements`](https://dart.dev/tools/diagnostics/use_null_aware_elements) linter issue
+  
 ## [2.0.0]
 
 * **Breaking change** bumped minimum Flutter SDK requirement to 3.32.0 and Dart SDK requirement to 3.8.0

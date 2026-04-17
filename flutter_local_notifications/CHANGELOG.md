@@ -1,3 +1,34 @@
+## [22.0.0-dev.2]
+
+* [Web] **Breaking change** renamed the `details` parameter associated with the `show()` method to `notificationDetails`. This was done to be consistent with other APIs across all of the platforms
+* [Web] **Breaking changes** removed the `hasPermission` and `isPermissionDenied` boolean properties associated with the `WebFlutterLocalNotificationsPlugin` class. This was done to simplify the plugin as the `permissionStatus` property already exists and can be used
+* [Web] Fixed an issue where `isSupported` property in the `WebFlutterLocalNotificationsPlugin` was not exposed
+
+## [22.0.0-dev.1]
+
+* [Web] added web platform support. Thanks to the initial PR from [Levi Lesches](https://github.com/Levi-Lesches) and completion by [Gaurav](https://github.com/Gaurav-CareMonitor)
+* [Windows] when calling `periodicallyShow()` the message when the `UnsupportedError` is thrown has been updated to say `Windows devices cannot periodically show notifications` instead. This has happened as a result of shifting the responsibility of reporting the `UnsupportedError` so it is done by `flutter_local_notifications_windows` instead of `flutter_local_notifications`
+
+## [21.0.0]
+
+* **Breaking change** bumped minimum Flutter SDK requirement to 3.38.1 and Dart SDK requirement to 3.10.0. Consequently the minimum OS requirements for each platform has been updated as well
+  * [Android] minimum Android version is now 7.0 (API level 24)
+  * [iOS] minimum iOS version is now 13
+  * [macOS] minimum macOS version is now 10.15
+* Bumped `timezone` dependency
+* [Android] **Breaking change** bumped `compileSdk` to 36 and updated readme to mention this
+* [Android] bumped Android Gradle Plugin (AGP) to 8.11.1 
+* Migrated example app to `UIScene` lifecycle
+* Updated readme to specify changes needed for applications that have migrated to `UIScene` lifecycle
+* Updated iOS-specific setup around registering `UNUserNotificationCenterDelegate` to remove redundant `available` check and to be more specific that it should be done in the `application:didFinishLaunchingWithOptions:` method
+* Bumped `flutter_timezone` dependency in example app
+
+## [20.1.0]
+
+* [iOS] added CarPlay notification support. Thanks to the PR from [derrik f](https://github.com/derrik-fleming)
+* [iOS][macOS] the `ActiveNotification` class now returns values for `groupKey` property if applicable. This depends on if the `threadIdentifier` was specified when creating the notification itself. Thanks to the PR from [Kwon Tae Hyung](https://github.com/TaeBbong)
+* [Windows] non-functional change: addressed the [`use_null_aware_elements`](https://dart.dev/tools/diagnostics/use_null_aware_elements) linter issue
+
 ## [20.0.0]
 
 * **Breaking change** bumped minimum Flutter SDK requirement to 3.32.0 and Dart SDK requirement to 3.8.0
