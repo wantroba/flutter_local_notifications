@@ -103,11 +103,14 @@ Note: the plugin requires Flutter SDK 3.38.1 at a minimum. The list of support p
 * [Android] Full-screen intent notifications
 * [Android] Start a foreground service
 * [Android] Ability to check if notifications are enabled
+* [Android] Open app notification settings
 * [iOS (all supported versions) & macOS 10.14+] Request notification permissions and customise the permissions being requested around displaying notifications
 * [iOS 10+] Request CarPlay notification permissions for notifications to appear in CarPlay interface
 * [iOS 10 or newer and macOS 10.14 or newer] Display notifications with attachments
 * [iOS 12.0+] Support for custom notification settings UI via "Configure Notifications in <application name>" button in notification context menu (API available on macOS 10.14+ but UI button does not appear in practice)
 * [iOS and macOS 10.14 or newer] Ability to check if notifications are enabled with specific type check
+* [iOS 15.4+] Attempt to open the app's notification settings page (falls back to app settings on older iOS versions)
+* [macOS] Attempt to open the app's notification settings page (falls back to system settings notifications pane)
 * [Linux] Ability to to use themed/Flutter Assets icons and sound
 * [Linux] Ability to to set the category
 * [Linux] Configuring the urgency
@@ -531,7 +534,7 @@ When the user selects a action, the plugin will start a **separate Flutter Engin
 Adjust `AppDelegate.m` and set the plugin registrant callback:
 
 If you're using Objective-C, add this function anywhere in AppDelegate.m:
-``` objc
+```objc
 // This is required for calling FlutterLocalNotificationsPlugin.setPluginRegistrantCallback method.
 #import <FlutterLocalNotificationsPlugin.h>
 ...
@@ -554,6 +557,7 @@ if your application has not been migrated to `UIScene` lifecycle as described [h
 
 If it has been migrated to `UIScene` lifecycle then register the callback in through `didInitializeImplicitFlutterEngine`
 
+```objc
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
    [GeneratedPluginRegistrant registerWithRegistry:self];
@@ -566,7 +570,7 @@ If it has been migrated to `UIScene` lifecycle then register the callback in thr
     // Add this method
     [FlutterLocalNotificationsPlugin setPluginRegistrantCallback:registerPlugins];
 }
-
+```
 
 For Swift, open the `AppDelegate.swift` and if your application has not been migrated to `UIScene` lifecycle, update the
 `didFinishLaunchingWithOptions` as follows where the commented code indicates the code to add in and why

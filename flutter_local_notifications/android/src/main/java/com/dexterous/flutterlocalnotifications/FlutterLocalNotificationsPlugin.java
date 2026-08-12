@@ -139,6 +139,7 @@ public class FlutterLocalNotificationsPlugin
   private static final String INITIALIZE_METHOD = "initialize";
   private static final String GET_CALLBACK_HANDLE_METHOD = "getCallbackHandle";
   private static final String ARE_NOTIFICATIONS_ENABLED_METHOD = "areNotificationsEnabled";
+  private static final String OPEN_APP_NOTIFICATION_SETTINGS_METHOD = "openAppNotificationSettings";
   private static final String CAN_SCHEDULE_EXACT_NOTIFICATIONS_METHOD =
       "canScheduleExactNotifications";
   private static final String CREATE_NOTIFICATION_CHANNEL_GROUP_METHOD =
@@ -211,6 +212,7 @@ public class FlutterLocalNotificationsPlugin
   static String NOTIFICATION_DETAILS = "notificationDetails";
   static Gson gson;
   private MethodChannel channel;
+  static MethodChannel liveChannel;
   private Context applicationContext;
   private Activity mainActivity;
   static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
@@ -297,6 +299,23 @@ public class FlutterLocalNotificationsPlugin
             .setOngoing(BooleanUtils.getValue(notificationDetails.ongoing))
             .setSilent(BooleanUtils.getValue(notificationDetails.silent))
             .setOnlyAlertOnce(BooleanUtils.getValue(notificationDetails.onlyAlertOnce));
+
+    if (notificationDetails.dismissIsolate != null) {
+      Intent deleteIntent = new Intent(context, ActionBroadcastReceiver.class);
+      deleteIntent.setAction(ActionBroadcastReceiver.ACTION_DISMISSED);
+      deleteIntent
+          .putExtra(NOTIFICATION_ID, notificationDetails.id)
+          .putExtra(NOTIFICATION_TAG, notificationDetails.tag)
+          .putExtra(PAYLOAD, notificationDetails.payload)
+          .putExtra(ActionBroadcastReceiver.DISMISS_ISOLATE, notificationDetails.dismissIsolate);
+      int deleteFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+      if (VERSION.SDK_INT >= VERSION_CODES.M) {
+        deleteFlags |= PendingIntent.FLAG_IMMUTABLE;
+      }
+      PendingIntent deletePendingIntent =
+          PendingIntent.getBroadcast(context, notificationDetails.id, deleteIntent, deleteFlags);
+      builder.setDeleteIntent(deletePendingIntent);
+    }
 
     if (notificationDetails.actions != null) {
       // Space out request codes by 16 so even with 16 actions they won't clash
@@ -658,6 +677,10 @@ public class FlutterLocalNotificationsPlugin
 
     if (SELECT_FOREGROUND_NOTIFICATION_ACTION.equals(intent.getAction())) {
       notificationResponseMap.put(NOTIFICATION_RESPONSE_TYPE, 1);
+    }
+
+    if (ActionBroadcastReceiver.ACTION_DISMISSED.equals(intent.getAction())) {
+      notificationResponseMap.put(NOTIFICATION_RESPONSE_TYPE, 2);
     }
 
     return notificationResponseMap;
@@ -1079,6 +1102,10 @@ public class FlutterLocalNotificationsPlugin
             context,
             bigPictureStyleInformation.bigPicture,
             bigPictureStyleInformation.bigPictureBitmapSource));
+    if (VERSION.SDK_INT >= VERSION_CODES.S
+        && Boolean.TRUE.equals(bigPictureStyleInformation.showBigPictureWhenCollapsed)) {
+      bigPictureStyle.showBigPictureWhenCollapsed(true);
+    }
     builder.setStyle(bigPictureStyle);
   }
 
@@ -1402,11 +1429,15 @@ public class FlutterLocalNotificationsPlugin
     this.applicationContext = binding.getApplicationContext();
     this.channel = new MethodChannel(binding.getBinaryMessenger(), METHOD_CHANNEL);
     this.channel.setMethodCallHandler(this);
+    liveChannel = this.channel;
   }
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     this.channel.setMethodCallHandler(null);
+    if (liveChannel == this.channel) {
+      liveChannel = null;
+    }
     this.channel = null;
   }
 
@@ -1542,6 +1573,9 @@ public class FlutterLocalNotificationsPlugin
         break;
       case ARE_NOTIFICATIONS_ENABLED_METHOD:
         areNotificationsEnabled(result);
+        break;
+      case OPEN_APP_NOTIFICATION_SETTINGS_METHOD:
+        openAppNotificationSettings(result);
         break;
       case CAN_SCHEDULE_EXACT_NOTIFICATIONS_METHOD:
         setCanScheduleExactNotifications(result);
@@ -1983,9 +2017,15 @@ public class FlutterLocalNotificationsPlugin
       permissionRequestProgress = PermissionRequestProgress.None;
     } else {
       permissionRequestProgress = PermissionRequestProgress.RequestingNotificationPolicyAccess;
-      mainActivity.startActivityForResult(
-          new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS),
-          NOTIFICATION_POLICY_ACCESS_REQUEST_CODE);
+      // Highlights the app's row on the settings list.
+      String packageName = applicationContext.getPackageName();
+      Bundle highlightArgs = new Bundle();
+      highlightArgs.putString(":settings:fragment_args_key", packageName);
+      Intent intent =
+          new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+              .putExtra(":settings:fragment_args_key", packageName)
+              .putExtra(":settings:show_fragment_args", highlightArgs);
+      mainActivity.startActivityForResult(intent, NOTIFICATION_POLICY_ACCESS_REQUEST_CODE);
     }
   }
 
@@ -2331,6 +2371,43 @@ public class FlutterLocalNotificationsPlugin
   private void areNotificationsEnabled(Result result) {
     NotificationManagerCompat notificationManager = getNotificationManager(applicationContext);
     result.success(notificationManager.areNotificationsEnabled());
+  }
+
+  private void openAppNotificationSettings(@NonNull Result result) {
+    final String packageName = applicationContext.getPackageName();
+    final PackageManager packageManager = applicationContext.getPackageManager();
+
+    Intent intent;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+      intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName);
+    } else {
+      intent = new Intent("android.settings.APP_NOTIFICATION_SETTINGS");
+      intent.putExtra("app_package", packageName);
+      intent.putExtra("app_uid", applicationContext.getApplicationInfo().uid);
+    }
+
+    if (intent.resolveActivity(packageManager) == null) {
+      intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+      intent.setData(Uri.parse("package:" + packageName));
+    }
+
+    if (intent.resolveActivity(packageManager) == null) {
+      result.success(false);
+      return;
+    }
+
+    try {
+      if (mainActivity != null) {
+        mainActivity.startActivity(intent);
+      } else {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        applicationContext.startActivity(intent);
+      }
+      result.success(true);
+    } catch (Exception e) {
+      result.success(false);
+    }
   }
 
   private void setCanScheduleExactNotifications(Result result) {

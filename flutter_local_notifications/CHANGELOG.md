@@ -1,13 +1,30 @@
-## [22.0.0-dev.2]
+## [22.3.0]
 
-* [Web] **Breaking change** renamed the `details` parameter associated with the `show()` method to `notificationDetails`. This was done to be consistent with other APIs across all of the platforms
-* [Web] **Breaking changes** removed the `hasPermission` and `isPermissionDenied` boolean properties associated with the `WebFlutterLocalNotificationsPlugin` class. This was done to simplify the plugin as the `permissionStatus` property already exists and can be used
-* [Web] Fixed an issue where `isSupported` property in the `WebFlutterLocalNotificationsPlugin` was not exposed
+* [Android][iOS][macOS] added `openAppNotificationSettings()` method. This opens the system settings UI where the user can manage notification permissions for the app. When not possible, on iOS, it opens the application's settings on iOS and on macOS, it opens the system settings notification pane. Thanks to the PR from [hamadcc](https://github.com/hamadcc)
 
-## [22.0.0-dev.1]
+## [22.2.0]
 
+* [Android][iOS][macOS] added support for callbacks to fire when a notification has been dismissed. This requires opting in by where the key requirements is to make use of the `dismissIsolate` property added to the `AndroidNotificationDetails` and `DarwinNotificationDetails` class. This indicates which isolate should be used to handle when a notification has been dismissed. Note on macOS, there is no support for background isolates so callback will always fire on the main isolate despite what is specified. Please see example app for more details on how to set up handling dismissals. Thanks to the PR from from [Vasily Laushkin](https://github.com/vlaushkin)
+* [iOS] fixed issue [#2807](https://github.com/MaikuB/flutter_local_notifications/issues/2807) where the manifest for SPM incorrectly declared the minimum iOS version is 11 when it should have been 13. Thanks to the PR from [Bizzwell](https://github.com/Bizzwell)
+
+## [22.1.0]
+
+* [Android] added support for `showBigPictureWhenCollapsed` in `BigPictureStyleInformation`. Thanks to the PR from [hiimax (Codematic)](https://github.com/hiimax)
+* [iOS][macOS] improved SPM compatibility
+* Migrated example app to use SPM and removed Cocoapods integration
+* Fixed API docs of `NotificationResponseType.selectedNotificationAction`. Thanks to the PR from [fush1m1](https://github.com/Fush1m1)
+
+## [22.0.1]
+
+* [Windows] Suppress warning around usage of experimental coroutines. This is to fix issue [#2777](https://github.com/MaikuB/flutter_local_notifications/issues/2777)
+
+## [22.0.0]
+
+* [Android] calling the `requestNotificationPolicyAccess()` method belonging to the `AndroidFlutterLocalNotificationsPlugin` class will now highlight associated application. Thanks to the PR from [Claudius Kienle](https://github.com/claudius-kienle)
 * [Web] added web platform support. Thanks to the initial PR from [Levi Lesches](https://github.com/Levi-Lesches) and completion by [Gaurav](https://github.com/Gaurav-CareMonitor)
 * [Windows] when calling `periodicallyShow()` the message when the `UnsupportedError` is thrown has been updated to say `Windows devices cannot periodically show notifications` instead. This has happened as a result of shifting the responsibility of reporting the `UnsupportedError` so it is done by `flutter_local_notifications_windows` instead of `flutter_local_notifications`
+* [Windows] bumped `xml` dependency so that supported range is `>=6.5.0 <8.0.0`
+* Fixed missing code formatting in the Notification Actions configuration section. Thanks to the PR from [Matias de Andrea](https://github.com/deandreamatias)
 
 ## [21.0.0]
 

@@ -1,4 +1,16 @@
-## [12.0.0-dev.1]
+## [12.2.0]
+
+* Added `openAppNotificationSettings()` method. When implemented, this opens the system settings UI where the user can manage notification permissions for the app. Thanks to the PR from [hamadcc](https://github.com/hamadcc)
+
+## [12.1.0]
+
+* Added `NotificationResponseType.notificationDismissed` enum value to support handling when a notification has been dismissed. Thanks to the PR from [Vasily Laushkin](https://github.com/vlaushkin)
+
+## [12.0.1]
+
+* Fixed API docs of `NotificationResponseType.selectedNotificationAction`. Thanks to the PR from [fush1m1](https://github.com/Fush1m1)
+
+## [12.0.0]
 
 * Added `zonedScheduled()` to the platform interface and moved `DateTimeComponents` from main plugin to platform interface. Thanks to the PR from [Gaurav Yadav](https://github.com/Gaurav-CareMonitor)
 
